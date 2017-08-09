@@ -24,7 +24,7 @@ class ExpiredTokensCommandTest extends TestCase
 
         $tester = new CommandTester($comm);
 
-        $tester->execute(array('--delete' => true));
+        $tester->execute(['--delete' => true]);
 
         $this->assertEquals("5 expired OAuth tokens were deleted\n", $tester->getDisplay());
     }
@@ -37,7 +37,7 @@ class ExpiredTokensCommandTest extends TestCase
         
         $tester = new CommandTester($comm);
 
-        $tester->execute(array('--delete' => false));
+        $tester->execute(['--delete' => false]);
 
         $this->assertEquals(
             "use the --delete option to trigger the delete of the expired tokens\n",

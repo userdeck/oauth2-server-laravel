@@ -91,7 +91,7 @@ Route::get('/oauth/authorize', array('before' => 'check-authorization-params|aut
     $params['user_id'] = Auth::user()->id;
 
     // display the authorization form
-    return View::make('authorization-form', array('params' => $params));
+    return View::make('authorization-form', ['params' => $params]);
 }));
 ```
 
@@ -106,18 +106,13 @@ Route::post('/oauth/authorize', array('before' => 'check-authorization-params|au
 
     // check if the user approved or denied the authorization request
     if (Input::get('approve') !== null) {
-
         $code = AuthorizationServer::newAuthorizeRequest('user', $params['user_id'], $params);
-
         Session::forget('authorize-params');
-            
         return Redirect::to(AuthorizationServer::makeRedirectWithCode($code, $params));
     }
 
     if (Input::get('deny') !== null) {
-
         Session::forget('authorize-params');
-
         return Redirect::to(AuthorizationServer::makeRedirectWithError($params));
     }
 }));
@@ -137,7 +132,8 @@ grant_type=authorization_code&
 client_id=the_client_id&
 client_secret=the_client_secret&
 scope=scope1,scope2&
-state=123456789
+state=123456789&
+code=the_code
 ```
 
 ### Password flow
@@ -145,15 +141,14 @@ state=123456789
 This grant type is the easiest to use and is ideal for highly trusted clients. To enable this grant type add the code below to the ```grant_types``` array located at ```app/config/packages/lucadegasperi/oauth2-server-laravel/oauth2.php``` 
 
 ```php
-'password' => array(
+'password' => [
     'class'            => 'League\OAuth2\Server\Grant\Password',
     'access_token_ttl' => 604800,
-    'callback'         => function($username, $password){
-        
-        $credentials = array(
-            'email' => $username,
+    'callback'         => function($username, $password) {
+        $credentials = [
+            'email'    => $username,
             'password' => $password,
-        );
+        ];
 
         $valid = Auth::validate($credentials);
 
@@ -163,7 +158,7 @@ This grant type is the easiest to use and is ideal for highly trusted clients. T
 
         return Auth::getProvider()->retrieveByCredentials($credentials)->id;
     }
-),
+],
 ```
 An example request for an access token using this grant type might look like this.
 
@@ -183,10 +178,10 @@ state=123456789
 Sometimes the client and the resource owner are the same thing. This grant types allows for client to access your API on their own behalf. To enable this grant type add the code below to the ```grant_types``` array located at ```app/config/packages/lucadegasperi/oauth2-server-laravel/oauth2.php```
 
 ```php
-'client_credentials' => array(
+'client_credentials' => [
     'class'            => 'League\OAuth2\Server\Grant\ClientCredentials',
     'access_token_ttl' => 3600,
-),
+],
 ```
 
 An example request for an access token using this grant type might look like this.
@@ -206,12 +201,12 @@ Access tokens do expire but by using the refresh token flow you can exchange a r
 When this grant type is enabled, every access token request will also issue a refresh token you can use to get a new access token when the current one expires. Configure this grant type in the ```grant_types``` array located at ```app/config/packages/lucadegasperi/oauth2-server-laravel/oauth2.php``` like this:
 
 ```php
-'refresh_token' => array(
+'refresh_token' => [
     'class'                 => 'League\OAuth2\Server\Grant\RefreshToken',
     'access_token_ttl'      => 3600,
     'refresh_token_ttl'     => 604800,
     'rotate_refresh_tokens' => false,
-),
+],
 ```
 
 An example request for an access token using this grant type might look like this.

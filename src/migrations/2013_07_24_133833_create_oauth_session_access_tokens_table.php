@@ -22,7 +22,7 @@ class CreateOauthSessionAccessTokensTable extends Migration
 
             $table->timestamps();
 
-            $table->unique(array('access_token', 'session_id'));
+            $table->unique(['access_token', 'session_id']);
             $table->index('session_id');
 
             $table->foreign('session_id')

@@ -81,7 +81,7 @@ class FluentClient implements ClientInterface
                         ->where('oauth_client_endpoints.redirect_uri', $redirectUri);
         }
 
-        if (Config::get('lucadegasperi/oauth2-server-laravel::oauth2.limit_clients_to_grants') === true and ! is_null($grantType)) {
+        if (Config::get('oauth2.limit_clients_to_grants') === true and ! is_null($grantType)) {
             $query = $query->join('oauth_client_grants', 'oauth_clients.id', '=', 'oauth_client_grants.client_id')
                            ->join('oauth_grants', 'oauth_grants.id', '=', 'oauth_client_grants.grant_id')
                            ->where('oauth_grants.grant', $grantType);
@@ -94,14 +94,14 @@ class FluentClient implements ClientInterface
             return false;
         }
 
-        $metadata = DB::table('oauth_client_metadata')->where('client_id', '=', $result->id)->lists('value', 'key');
+        $metadata = DB::table('oauth_client_metadata')->where('client_id', '=', $result->id)->pluck('value', 'key');
 
-        return array(
+        return [
             'client_id'     =>  $result->id,
             'client_secret' =>  $result->secret,
             'redirect_uri'  =>  (isset($result->redirect_uri)) ? $result->redirect_uri : null,
             'name'          =>  $result->name,
             'metadata'      =>  $metadata
-        );
+        ];
     }
 }

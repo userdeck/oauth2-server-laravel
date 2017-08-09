@@ -21,7 +21,6 @@ class ExpiredTokensCommand extends Command
      */
     protected $description = 'A command to delete the OAuth expired tokens';
 
-
     protected $sessions;
 
     /**
@@ -60,7 +59,7 @@ class ExpiredTokensCommand extends Command
      */
     protected function getArguments()
     {
-        return array();
+        return [];
     }
 
     /**
@@ -70,9 +69,9 @@ class ExpiredTokensCommand extends Command
      */
     protected function getOptions()
     {
-        return array(
-            array('delete', null, InputOption::VALUE_NONE, 'Effectively delete the tokens', null),
-        );
+        return [
+            ['delete', null, InputOption::VALUE_NONE, 'Effectively delete the tokens', null],
+        ];
     }
 
     /**

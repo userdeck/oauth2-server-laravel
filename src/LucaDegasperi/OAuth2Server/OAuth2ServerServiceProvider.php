@@ -5,7 +5,6 @@ use LucaDegasperi\OAuth2Server\Proxies\AuthorizationServerProxy;
 
 class OAuth2ServerServiceProvider extends ServiceProvider
 {
-
     /**
      * Indicates if loading of the provider is deferred.
      *
@@ -20,9 +19,13 @@ class OAuth2ServerServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->package('lucadegasperi/oauth2-server-laravel', 'lucadegasperi/oauth2-server-laravel');
-
-        require_once __DIR__.'/../../filters.php';
+        $this->publishes([
+            __DIR__.'/../../config/oauth2.php' => config_path('oauth2.php'),
+        ]);
+        
+        $this->publishes([
+            __DIR__.'/../../migrations/' => database_path('migrations'),
+        ], 'migrations');
     }
 
     /**
@@ -41,14 +44,12 @@ class OAuth2ServerServiceProvider extends ServiceProvider
         $app->bind('LucaDegasperi\OAuth2Server\Repositories\SessionManagementInterface', 'LucaDegasperi\OAuth2Server\Repositories\FluentSession');
 
         $app['oauth2.authorization-server'] = $app->share(function ($app) {
-
             $server = $app->make('League\OAuth2\Server\Authorization');
 
-            $config = $app['config']->get('lucadegasperi/oauth2-server-laravel::oauth2');
+            $config = $app['config']->get('oauth2');
 
             // add the supported grant types to the authorization server
             foreach ($config['grant_types'] as $grantKey => $grantValue) {
-
                 $server->addGrantType(new $grantValue['class']($server));
                 $server->getGrantType($grantKey)->setAccessTokenTTL($grantValue['access_token_ttl']);
 
@@ -67,13 +68,9 @@ class OAuth2ServerServiceProvider extends ServiceProvider
             }
 
             $server->requireStateParam($config['state_param']);
-
             $server->requireScopeParam($config['scope_param']);
-
             $server->setScopeDelimeter($config['scope_delimiter']);
-
             $server->setDefaultScope($config['default_scope']);
-
             $server->setAccessTokenTTL($config['access_token_ttl']);
 
             return new AuthorizationServerProxy($server);
@@ -81,11 +78,8 @@ class OAuth2ServerServiceProvider extends ServiceProvider
         });
 
         $app['oauth2.resource-server'] = $app->share(function ($app) {
-
             $server = $app->make('League\OAuth2\Server\Resource');
-
             return $server;
-
         });
 
         $app['oauth2.expired-tokens-command'] = $app->share(function ($app) {
@@ -102,6 +96,6 @@ class OAuth2ServerServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return array('oauth2.authorization-server', 'oauth2.resource-server');
+        return ['oauth2.authorization-server', 'oauth2.resource-server'];
     }
 }

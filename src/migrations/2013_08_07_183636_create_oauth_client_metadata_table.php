@@ -24,7 +24,7 @@ class CreateOauthClientMetadataTable extends Migration
                     ->references('id')->on('oauth_clients')
                     ->onDelete('cascade');
 
-            $table->unique(array('client_id', 'key'), 'oauth_client_metadata_cid_key_unique');
+            $table->unique(['client_id', 'key'], 'oauth_client_metadata_cid_key_unique');
             $table->index('client_id');
             
         });

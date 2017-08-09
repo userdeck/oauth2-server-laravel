@@ -11,14 +11,14 @@ class CheckAuthorizationParamsFilterTest extends TestCase {
 
     public function getStub()
     {
-        return array(
+        return [
             'client_id' => 1,
             'client_details' => 'foo',
             'redirect_uri' => 'http://www.example.com/',
             'response_type' => 'code',
             'scopes' => 'scope',
             'state' => '123456789',
-        );
+        ];
     }
 
     public function test_with_valid_params()

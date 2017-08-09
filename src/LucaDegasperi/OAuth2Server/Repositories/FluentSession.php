@@ -6,7 +6,6 @@ use Carbon\Carbon;
 
 class FluentSession implements SessionInterface, SessionManagementInterface
 {
-
     /**
      * Create a new session
      *
@@ -24,13 +23,13 @@ class FluentSession implements SessionInterface, SessionManagementInterface
      */
     public function createSession($clientId, $ownerType, $ownerId)
     {
-        return DB::table('oauth_sessions')->insertGetId(array(
+        return DB::table('oauth_sessions')->insertGetId([
             'client_id'  => $clientId,
             'owner_type' => $ownerType,
             'owner_id'   => $ownerId,
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()
-        ));
+        ]);
     }
 
     /**
@@ -71,12 +70,12 @@ class FluentSession implements SessionInterface, SessionManagementInterface
      */
     public function associateRedirectUri($sessionId, $redirectUri)
     {
-        DB::table('oauth_session_redirects')->insert(array(
+        DB::table('oauth_session_redirects')->insert([
             'session_id'   => $sessionId,
             'redirect_uri' => $redirectUri,
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now()
-        ));
+            'created_at'   => Carbon::now(),
+            'updated_at'   => Carbon::now(),
+        ]);
     }
 
     /**
@@ -96,13 +95,13 @@ class FluentSession implements SessionInterface, SessionManagementInterface
      */
     public function associateAccessToken($sessionId, $accessToken, $expireTime)
     {
-        return DB::table('oauth_session_access_tokens')->insertGetId(array(
+        return DB::table('oauth_session_access_tokens')->insertGetId([
             'session_id'           => $sessionId,
             'access_token'         => $accessToken,
             'access_token_expires' => $expireTime,
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now()
-        ));
+            'created_at'           => Carbon::now(),
+            'updated_at'           => Carbon::now(),
+        ]);
     }
 
     /**
@@ -123,14 +122,14 @@ class FluentSession implements SessionInterface, SessionManagementInterface
      */
     public function associateRefreshToken($accessTokenId, $refreshToken, $expireTime, $clientId)
     {
-        DB::table('oauth_session_refresh_tokens')->insert(array(
+        DB::table('oauth_session_refresh_tokens')->insert([
             'session_access_token_id' => $accessTokenId,
             'refresh_token'           => $refreshToken,
             'refresh_token_expires'   => $expireTime,
             'client_id'               => $clientId,
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now()
-        ));
+            'created_at'              => Carbon::now(),
+            'updated_at'              => Carbon::now(),
+        ]);
     }
 
     /**
@@ -150,13 +149,13 @@ class FluentSession implements SessionInterface, SessionManagementInterface
      */
     public function associateAuthCode($sessionId, $authCode, $expireTime)
     {
-        $id = DB::table('oauth_session_authcodes')->insertGetId(array(
+        $id = DB::table('oauth_session_authcodes')->insertGetId([
             'session_id'        => $sessionId,
             'auth_code'         => $authCode,
             'auth_code_expires' => $expireTime,
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now()
-        ));
+            'created_at'        => Carbon::now(),
+            'updated_at'        => Carbon::now(),
+        ]);
 
         return $id;
     }
@@ -197,10 +196,10 @@ class FluentSession implements SessionInterface, SessionManagementInterface
      * Expected response:
      *
      * <code>
-     * array(
+     * [
      *     'session_id' =>  (int)
      *     'authcode_id'  =>  (int)
-     * )
+     * ]
      * </code>
      *
      * @param  string     $clientId    The client ID
@@ -237,12 +236,12 @@ class FluentSession implements SessionInterface, SessionManagementInterface
      * Expected response:
      *
      * <code>
-     * array(
+     * [
      *     'session_id' =>  (int),
      *     'client_id'  =>  (string),
      *     'owner_id'   =>  (string),
      *     'owner_type' =>  (string)
-     * )
+     * ]
      * </code>
      *
      * @param  string     $accessToken The access token
@@ -300,12 +299,12 @@ class FluentSession implements SessionInterface, SessionManagementInterface
      * Expected response:
      *
      * <code>
-     * array(
+     * [
      *     'id' =>  (int),
      *     'session_id' =>  (int),
      *     'access_token'   =>  (string),
      *     'access_token_expires'   =>  (int)
-     * )
+     * ]
      * </code>
      *
      * @param  int    $accessTokenId The access token ID
@@ -335,12 +334,12 @@ class FluentSession implements SessionInterface, SessionManagementInterface
      */
     public function associateScope($accessTokenId, $scopeId)
     {
-        DB::table('oauth_session_token_scopes')->insert(array(
+        DB::table('oauth_session_token_scopes')->insert([
             'session_access_token_id' => $accessTokenId,
             'scope_id'                => $scopeId,
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now()
-        ));
+            'created_at'              => Carbon::now(),
+            'updated_at'              => Carbon::now(),
+        ]);
     }
 
     /**
@@ -359,11 +358,11 @@ class FluentSession implements SessionInterface, SessionManagementInterface
      *
      * <code>
      * array (
-     *     array(
+     *     [
      *         'key'    =>  (string),
      *         'name'   =>  (string),
      *         'description'    =>  (string)
-     *     ),
+     *     ],
      *     ...
      *     ...
      * )
@@ -381,7 +380,7 @@ class FluentSession implements SessionInterface, SessionManagementInterface
             ->where('access_token', $accessToken)
             ->get();
         
-        $scopes = array();
+        $scopes = [];
         
 		foreach($scopeResults as $key=>$scope)
 		{
@@ -408,12 +407,12 @@ class FluentSession implements SessionInterface, SessionManagementInterface
      */
     public function associateAuthCodeScope($authCodeId, $scopeId)
     {
-        DB::table('oauth_session_authcode_scopes')->insert(array(
+        DB::table('oauth_session_authcode_scopes')->insert([
             'oauth_session_authcode_id' => $authCodeId,
             'scope_id'                  => $scopeId,
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()
-        ));
+        ]);
     }
 
     /**
@@ -428,15 +427,15 @@ class FluentSession implements SessionInterface, SessionManagementInterface
      * Expected response:
      *
      * <code>
-     * array(
-     *     array(
+     * [
+     *     [
      *         'scope_id' => (int)
-     *     ),
-     *     array(
+     *     ],
+     *     [
      *         'scope_id' => (int)
-     *     ),
+     *     ],
      *     ...
-     * )
+     * ]
      * </code>
      *
      * @param  int   $oauthSessionAuthCodeId The session ID
@@ -448,7 +447,7 @@ class FluentSession implements SessionInterface, SessionManagementInterface
                 ->where('oauth_session_authcode_id', '=', $oauthSessionAuthCodeId)
                 ->get();
 
-        $scopes = array();
+        $scopes = [];
 
         foreach($scopesResults as $key=>$scope)
         {

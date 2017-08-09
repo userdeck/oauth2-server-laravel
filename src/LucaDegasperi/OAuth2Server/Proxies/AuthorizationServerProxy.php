@@ -5,7 +5,7 @@ use League\OAuth2\Server\Util\RedirectUri;
 use League\OAuth2\Server\Exception\ClientException;
 use Exception;
 use Response;
-use Input;
+use Illuminate\Support\Facades\Input;
 
 class AuthorizationServerProxy
 {
@@ -24,7 +24,7 @@ class AuthorizationServerProxy
      * "a 503 Service Unavailable HTTP status code cannot be
      * returned to the client via an HTTP redirect"
      */
-    protected static $exceptionHttpStatusCodes = array(
+    protected static $exceptionHttpStatusCodes = [
         'invalid_request'           =>  400,
         'unauthorized_client'       =>  400,
         'access_denied'             =>  401,
@@ -37,7 +37,7 @@ class AuthorizationServerProxy
         'invalid_grant'             =>  400,
         'invalid_credentials'       =>  400,
         'invalid_refresh'           =>  400,
-    );
+    ];
 
     /**
      * Create a new AuthorizationServerProxy
@@ -70,7 +70,7 @@ class AuthorizationServerProxy
             case 4:
                 return $this->authServer->$method($args[0], $args[1], $args[2], $args[3]);
             default:
-                return call_user_func_array(array($this->authServer, $method), $args);
+                return call_user_func_array([$this->authServer, $method], $args);
         }
     }
 
@@ -81,7 +81,7 @@ class AuthorizationServerProxy
      * @param  string $queryDelimeter the query string delimiter
      * @return Redirect               a Redirect object
      */
-    public function makeRedirect($uri, $params = array(), $queryDelimeter = '?')
+    public function makeRedirect($uri, $params = [], $queryDelimeter = '?')
     {
         return RedirectUri::make($uri, $params, $queryDelimeter);
     }
@@ -93,12 +93,12 @@ class AuthorizationServerProxy
      * @param  array  $params the redirection parameters
      * @return Redirect       a Redirect object
      */
-    public function makeRedirectWithCode($code, $params = array())
+    public function makeRedirectWithCode($code, $params = [])
     {
-        return $this->makeRedirect($params['redirect_uri'], array(
+        return $this->makeRedirect($params['redirect_uri'], [
             'code'  =>  $code,
             'state' =>  isset($params['state']) ? $params['state'] : '',
-        ));
+        ]);
     }
 
     /**
@@ -107,13 +107,13 @@ class AuthorizationServerProxy
      * @param  array  $params the redirection parameters
      * @return Redirect       a Redirect object
      */
-    public function makeRedirectWithError($params = array())
+    public function makeRedirectWithError($params = [])
     {
-        return $this->makeRedirect($params['redirect_uri'], array(
+        return $this->makeRedirect($params['redirect_uri'], [
             'error' =>  'access_denied',
             'error_message' =>  $this->authServer->getExceptionMessage('access_denied'),
             'state' =>  isset($params['state']) ? $params['state'] : ''
-        ));
+        ]);
     }
 
     /**
@@ -148,33 +148,31 @@ class AuthorizationServerProxy
     public function performAccessTokenFlow()
     {
         try {
-
             // Get user input
             $input = Input::all();
 
             // Tell the auth server to issue an access token
             $response = $this->authServer->issueAccessToken($input);
-
-        } catch (ClientException $e) {
-
+        }
+        catch (ClientException $e) {
             // Throw an exception because there was a problem with the client's request
-            $response = array(
+            $response = [
                 'error' =>  $this->authServer->getExceptionType($e->getCode()),
-                'error_description' => $e->getMessage()
-            );
+                'error_description' => $e->getMessage(),
+            ];
 
             // make this better in order to return the correct headers via the response object
             $error = $this->authServer->getExceptionType($e->getCode());
             $headers = $this->authServer->getExceptionHttpHeaders($error);
+            
             return Response::json($response, self::$exceptionHttpStatusCodes[$error], $headers);
-
-        } catch (Exception $e) {
-
+        }
+        catch (Exception $e) {
             // Throw an error when a non-library specific exception has been thrown
-            $response = array(
+            $response = [
                 'error' =>  'undefined_error',
-                'error_description' => $e->getMessage()
-            );
+                'error_description' => $e->getMessage(),
+            ];
 
             return Response::json($response, 500);
         }

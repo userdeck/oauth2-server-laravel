@@ -20,7 +20,7 @@ class CreateOauthClientsTable extends Migration
             $table->timestamps();
 
             $table->unique('id');
-            $table->unique(array('id', 'secret'));
+            $table->unique(['id', 'secret']);
         });
     }
 

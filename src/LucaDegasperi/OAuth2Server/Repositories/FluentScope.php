@@ -6,7 +6,6 @@ use Config;
 
 class FluentScope implements ScopeInterface
 {
-
     /**
      * Return information about a scope
      *
@@ -39,12 +38,12 @@ class FluentScope implements ScopeInterface
                     ->select('oauth_scopes.id as id', 'oauth_scopes.scope as scope', 'oauth_scopes.name as name', 'oauth_scopes.description as description')
                     ->where('oauth_scopes.scope', $scope);
 
-        if (Config::get('lucadegasperi/oauth2-server-laravel::oauth2.limit_clients_to_scopes') === true and ! is_null($clientId)) {
+        if (Config::get('oauth2.limit_clients_to_scopes') === true and ! is_null($clientId)) {
             $query = $query->join('oauth_client_scopes', 'oauth_scopes.id', '=', 'oauth_client_scopes.scope_id')
                            ->where('oauth_client_scopes.client_id', $clientId);
         }
 
-        if (Config::get('lucadegasperi/oauth2-server-laravel::oauth2.limit_scopes_to_grants') === true and ! is_null($grantType)) {
+        if (Config::get('oauth2.limit_scopes_to_grants') === true and ! is_null($grantType)) {
             $query = $query->join('oauth_grant_scopes', 'oauth_scopes.id', '=', 'oauth_grant_scopes.scope_id')
                            ->join('oauth_grants', 'oauth_grants.id', '=', 'oauth_grant_scopes.grant_id')
                            ->where('oauth_grants.grant', $grantType);
@@ -57,11 +56,11 @@ class FluentScope implements ScopeInterface
             return false;
         }
 
-        return array(
+        return [
             'id'          => $result->id,
             'scope'       => $result->scope,
             'name'        => $result->name,
             'description' => $result->description
-        );
+        ];
     }
 }

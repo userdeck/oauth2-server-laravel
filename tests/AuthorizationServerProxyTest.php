@@ -17,14 +17,14 @@ class AuthorizationServerProxyTest extends TestCase {
 
     public function getStub()
     {
-        return array(
+        return [
             'client_id' => 1,
             'client_details' => 'foo',
             'redirect_uri' => 'http://www.example.com/',
             'response_type' => 'code',
             'scopes' => 'scope',
             'state' => '123456789',
-        );
+        ];
     }
 
     public function test_make_redirect()
@@ -40,11 +40,11 @@ class AuthorizationServerProxyTest extends TestCase {
     {
         $proxy = $this->getProxy($this->getServer());
 
-        $result = $proxy->makeRedirectWithCode('1234567890', array('redirect_uri' => 'example'));
+        $result = $proxy->makeRedirectWithCode('1234567890', ['redirect_uri' => 'example']);
 
         $this->assertEquals('example?code=1234567890&state=', $result);
 
-        $result = $proxy->makeRedirectWithCode('1234567890', array('redirect_uri' => 'example', 'state' => 'random'));
+        $result = $proxy->makeRedirectWithCode('1234567890', ['redirect_uri' => 'example', 'state' => 'random']);
 
         $this->assertEquals('example?code=1234567890&state=random', $result);
     }
@@ -56,11 +56,11 @@ class AuthorizationServerProxyTest extends TestCase {
 
         $proxy = $this->getProxy($mock);
 
-        $result = $proxy->makeRedirectWithError(array('redirect_uri' => 'example'));
+        $result = $proxy->makeRedirectWithError(['redirect_uri' => 'example']);
 
         $this->assertEquals('example?error=access_denied&error_message=error_message&state=', $result);
 
-        $result = $proxy->makeRedirectWithError(array('redirect_uri' => 'example', 'state' => 'random'));
+        $result = $proxy->makeRedirectWithError(['redirect_uri' => 'example', 'state' => 'random']);
 
         $this->assertEquals('example?error=access_denied&error_message=error_message&state=random', $result);
     }
@@ -88,7 +88,7 @@ class AuthorizationServerProxyTest extends TestCase {
     public function test_access_token_correctly_issued()
     {
         $mock = $this->getServer();
-        $mock->shouldReceive('issueAccessToken')->once()->andReturn(array('foo' => 'bar'));
+        $mock->shouldReceive('issueAccessToken')->once()->andReturn(['foo' => 'bar']);
 
         $response = $this->getProxy($mock)->performAccessTokenFlow();
 
@@ -102,7 +102,7 @@ class AuthorizationServerProxyTest extends TestCase {
         $mock = $this->getServer();
         $mock->shouldReceive('issueAccessToken')->once()->andThrow(new League\OAuth2\Server\Exception\ClientException('client exception'));
         $mock->shouldReceive('getExceptionType')->twice()->andReturn('invalid_request');
-        $mock->shouldReceive('getExceptionHttpHeaders')->once()->andReturn(array());
+        $mock->shouldReceive('getExceptionHttpHeaders')->once()->andReturn([]);
 
         $response = $this->getProxy($mock)->performAccessTokenFlow();
 
@@ -129,7 +129,7 @@ class AuthorizationServerProxyTest extends TestCase {
         $mock->shouldReceive('unexistingMethod')->times(6)->andReturn('baz');
 
         $proxy = $this->getProxy($mock);
-        $responses = array();
+        $responses = [];
         $responses[] = $proxy->unexistingMethod();
         $responses[] = $proxy->unexistingMethod('foo');
         $responses[] = $proxy->unexistingMethod('foo', 'bar');
